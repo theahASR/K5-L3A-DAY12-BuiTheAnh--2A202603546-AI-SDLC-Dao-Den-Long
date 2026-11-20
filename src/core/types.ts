@@ -52,6 +52,8 @@ export interface GameContract {
   build_cmd: string;
   run_cmd: string;
   headless_cmd: string;
+  bench_cmd?: string;
+  soak_cmd?: string;
   tuning: GameTuning;
 }
 
