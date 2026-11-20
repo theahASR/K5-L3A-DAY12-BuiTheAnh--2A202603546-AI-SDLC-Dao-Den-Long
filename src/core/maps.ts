@@ -100,8 +100,8 @@ export const NIGHT_MAPS: Record<1 | 2 | 3, NightMapDef> = {
     night: 1,
     name: 'Đêm 1 — Đảo Bến',
     introLine:
-      'Ông Đăng: "Sương đen đã phủ kín Đảo Bến rồi, Mây ơi. Gom lấy ánh đom đóm, thắp sáng lại cả 5 Đèn Lồng Lớn trước khi bình minh đến nhé."',
-    durationS: 300,
+      'Ông Đăng: "Sương đen đã phủ kín Đảo Bến rồi, Mây ơi. Thắp đèn và nhớ châm thêm dầu để giữ ít nhất 3/5 Đèn Lồng Lớn sáng đến bình minh nhé!"',
+    durationS: 240,
     startPos: [0, 0, 0],
     lanterns: [
       { id: 'L1', pos: [0, 0, 25] },
@@ -128,8 +128,8 @@ export const NIGHT_MAPS: Record<1 | 2 | 3, NightMapDef> = {
     night: 2,
     name: 'Đêm 2 — Đảo Cau',
     introLine:
-      'Ông Đăng: "Đảo Cau nối đôi bằng cầu tre nhỏ và hai bục nhảy. Coi chừng Gió Lạc hay rình cướp đom đóm — lá Bùa Gió giữa cầu sẽ giúp cháu bay nhanh hơn!"',
-    durationS: 330,
+      'Ông Đăng: "Đảo Cau nối đôi bằng cầu tre nhỏ và hai bục nhảy. Giữ ít nhất 4/6 đèn sáng tới bình minh, châm dầu kịp lúc trước khi Bóng Mực hút cạn nhé!"',
+    durationS: 270,
     startPos: [0, 0, 0],
     lanterns: [
       { id: 'L1', pos: [0, 0, 20] },
@@ -165,8 +165,8 @@ export const NIGHT_MAPS: Record<1 | 2 | 3, NightMapDef> = {
     night: 3,
     name: 'Đêm 3 — Đảo Chuông',
     introLine:
-      'Ông Đăng: "Đêm cuối trên Đảo Chuông ba tầng! Leo theo hai con dốc lên tầng giữa, dùng bục nhảy lên đỉnh Tháp Chuông và giữ vững bước chân khi gió mạnh nổi lên!"',
-    durationS: 360,
+      'Ông Đăng: "Đêm cuối trên Đảo Chuông ba tầng! Giữ ít nhất 5/7 đèn sáng đến bình minh, cảnh giác gió mạnh và Bóng Mực rình hút dầu các đèn sắp tắt!"',
+    durationS: 300,
     startPos: [0, 0, -10],
     lanterns: [
       { id: 'L1', pos: [0, 6, 6] },

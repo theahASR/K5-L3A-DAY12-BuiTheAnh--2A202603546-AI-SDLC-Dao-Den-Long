@@ -65,7 +65,7 @@ function parseArgs(argv: string[]): CliArgs {
   if (seed === undefined) throw new Error('Missing required flag: --seed <int>');
   if (night === undefined) throw new Error('Missing required flag: --night <1|2|3>');
   if (night !== 1 && night !== 2 && night !== 3) {
-    throw new Error(`Unsupported --night ${night}; Contract v1.1 supports --night 1, 2, or 3`);
+    throw new Error(`Unsupported --night ${night}; Contract v1.2 supports --night 1, 2, or 3`);
   }
   if (ticks === undefined || ticks < 0) {
     throw new Error('Missing or invalid required flag: --ticks <non-negative int>');

@@ -22,6 +22,7 @@ const VALID_SHADE_STATES = new Set<ShadeState>([
   'chase',
   'recoil',
   'stunned',
+  'drain',
 ]);
 const VALID_DRIFTER_STATES = new Set<DrifterState>(['idle', 'chase', 'flee']);
 const VALID_MOTE_KINDS = new Set<MoteKind>(['random', 'dropped']);
@@ -132,6 +133,12 @@ export function validateScenarioFile(raw: unknown): ScenarioFile {
     if (raw.player.flames !== undefined) {
       scenario.player.flames = assertNonNegInt(raw.player.flames, 'scenario.player.flames');
     }
+    if (raw.player.successful_lights !== undefined) {
+      scenario.player.successful_lights = assertNonNegInt(
+        raw.player.successful_lights,
+        'scenario.player.successful_lights'
+      );
+    }
     if (raw.player.invuln_ticks !== undefined) {
       scenario.player.invuln_ticks = assertNonNegInt(
         raw.player.invuln_ticks,
@@ -225,7 +232,7 @@ export function validateScenarioFile(raw: unknown): ScenarioFile {
       if (item.state !== undefined) {
         if (typeof item.state !== 'string' || !VALID_SHADE_STATES.has(item.state as ShadeState)) {
           throw new ContractValidationError(
-            `scenario.shades[${idx}].state must be one of spawning, wander, chase, recoil, stunned`
+            `scenario.shades[${idx}].state must be one of spawning, wander, chase, recoil, stunned, drain`
           );
         }
         state = item.state as ShadeState;
@@ -237,7 +244,19 @@ export function validateScenarioFile(raw: unknown): ScenarioFile {
           `scenario.shades[${idx}].state_ticks_left`
         );
       }
-      return { id: item.id, pos, state, state_ticks_left };
+      let target_lantern_id: string | null | undefined;
+      if (item.target_lantern_id !== undefined) {
+        if (
+          item.target_lantern_id !== null &&
+          (typeof item.target_lantern_id !== 'string' || item.target_lantern_id.length === 0)
+        ) {
+          throw new ContractValidationError(
+            `scenario.shades[${idx}].target_lantern_id must be null or a non-empty string`
+          );
+        }
+        target_lantern_id = item.target_lantern_id;
+      }
+      return { id: item.id, pos, state, state_ticks_left, target_lantern_id };
     });
   }
 
@@ -323,7 +342,14 @@ export function validateScenarioFile(raw: unknown): ScenarioFile {
       if (typeof item.id !== 'string' || item.id.length === 0) {
         throw new ContractValidationError(`scenario.lanterns[${idx}].id must be a non-empty string`);
       }
-      const out: { id: string; pos?: Vec3; lit?: boolean; deposited?: number } = { id: item.id };
+      const out: {
+        id: string;
+        pos?: Vec3;
+        lit?: boolean;
+        deposited?: number;
+        fuel?: number;
+        ever_lit?: boolean;
+      } = { id: item.id };
       if (item.pos !== undefined) {
         out.pos = assertVec3(item.pos, `scenario.lanterns[${idx}].pos`);
       }
@@ -335,6 +361,20 @@ export function validateScenarioFile(raw: unknown): ScenarioFile {
       }
       if (item.deposited !== undefined) {
         out.deposited = assertNonNegInt(item.deposited, `scenario.lanterns[${idx}].deposited`);
+      }
+      if (item.fuel !== undefined) {
+        if (!isFiniteNumber(item.fuel) || item.fuel < 0 || item.fuel > 100) {
+          throw new ContractValidationError(
+            `scenario.lanterns[${idx}].fuel must be a finite number in [0, 100]`
+          );
+        }
+        out.fuel = item.fuel;
+      }
+      if (item.ever_lit !== undefined) {
+        if (typeof item.ever_lit !== 'boolean') {
+          throw new ContractValidationError(`scenario.lanterns[${idx}].ever_lit must be a boolean`);
+        }
+        out.ever_lit = item.ever_lit;
       }
       return out;
     });

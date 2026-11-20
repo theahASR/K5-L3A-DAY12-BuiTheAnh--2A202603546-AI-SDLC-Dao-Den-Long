@@ -7,7 +7,14 @@ export const TUNING: GameTuning = CONTRACT.tuning;
 export const TICK_RATE = 60;
 export const DT = 1 / TICK_RATE;
 
-// Standardized Ticket-02 constants
+// Exact integer fuel scaling (1 fuel unit = 60 sixtieths)
+export const FUEL_UNIT_SCALE = 60;
+export const SHADE_DRAIN_RADIUS = 2.0;
+export const SHADE_DRAIN_AGGRO_RADIUS = 6.0;
+export const FUEL_DRAIN_EVENT_INTERVAL_TICKS = 60;
+export const CAPACITY_PER_LIGHT = 2;
+
+// Standardized Ticket-02 / Ticket-03 constants
 export const JUMP_VELOCITY = 7.0;
 export const GRAVITY = -20.0;
 export const PICKUP_MAX_DY = 1.5;
@@ -55,7 +62,7 @@ export const WIND_WARNING_TICKS = 120; // 2s before gust
 export const WIND_DURATION_TICKS = 300; // 5s
 export const WIND_PUSH_SPEED = 2.0;
 
-// Official Ticket-02 Standard Color Palette (exact hex values)
+// Official Ticket-02 & Ticket-03 Color Palette (exact hex values)
 export const PALETTE = {
   sky: 0x0e1430,
   fog: 0x1b2350,
@@ -70,16 +77,27 @@ export const PALETTE = {
   moteHalo: 0xffe58a,
   shadeBody: 0x120a1a,
   shadeRim: 0x7a3cff,
+  shadeRimColorblind: 0x00b3ff,
   shadeStunned: 0x3a3450,
   mayCloak: 0xe8e2d0,
   mayScarfCharm: 0xc8102e,
   goldScore: 0xf2c14e,
   drifter: 0x8fa3b8,
   uiDanger: 0xff5a5f,
+  uiDangerColorblind: 0xffffff,
   uiText: 0xf5f1e6,
 } as const;
 
 export function round3(value: number): number {
   const rounded = Math.round(value * 1000) / 1000;
   return Object.is(rounded, -0) ? 0 : rounded;
+}
+
+export function round1(value: number): number {
+  const rounded = Math.round(value * 10) / 10;
+  return Object.is(rounded, -0) ? 0 : rounded;
+}
+
+export function computeWinLanternThreshold(totalLanterns: number, winRatio: number): number {
+  return Math.ceil(Math.round(winRatio * totalLanterns * 1e9) / 1e9);
 }
