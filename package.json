@@ -1,15 +1,19 @@
 {
   "name": "dao-den-long",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && node scripts/build-headless.mjs",
+    "start": "node scripts/run-game.mjs",
     "preview": "vite preview --host",
     "headless": "node dist-headless/cli.js",
+    "soak": "node dist-headless/soak.js --seed 7 --nights 10 --out soak.json",
+    "bench": "node dist-headless/bench.js --seed 42 --duration 30 --out bench.json",
+    "export-leaderboard": "node scripts/run-game.mjs --export-leaderboard leaderboard-export.json",
     "test": "vitest run",
-    "verify": "npm run build && npm test && node scripts/verify-phase3.mjs"
+    "verify": "npm run build && npm test && node scripts/verify-phase4.mjs"
   },
   "dependencies": {
     "three": "^0.170.0"

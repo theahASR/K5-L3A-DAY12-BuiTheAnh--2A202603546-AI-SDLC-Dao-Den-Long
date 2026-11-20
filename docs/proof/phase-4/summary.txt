@@ -1,0 +1,7 @@
+Phase 4 Verification Gate Summary (Contract v1.3 — v1.0.0)
+Node: v22.21.0 | Platform: win32 x64
+
+Soak Test (10 nights, seed=7): crashes=0, mem=41 -> 44.9 MB (limit <= 49.2 MB), duration=4s
+Soak Results: ["lost","lost","lost","lost","lost","lost","lost","lost","lost","lost"]
+Leaderboard Export: PASS (0 entries)
+Benchmark (bench.json): avg_fps=44.9, p1_low_fps=13, frame_ms_p95=43.9ms, frames=1347, load_ms=8943ms, vsync_off=true

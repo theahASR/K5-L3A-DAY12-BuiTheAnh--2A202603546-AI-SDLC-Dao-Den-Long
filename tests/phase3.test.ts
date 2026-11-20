@@ -4,8 +4,9 @@ import { GameSimulation, createDefaultInput } from '../src/core/simulation';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings } from '../src/game/settings';
 
 describe('Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2)', () => {
-  it('Contract v1.2 exposes exact required tuning keys and updated night durations (240/270/300s)', () => {
-    expect(CONTRACT.contract_version).toBe('1.2');
+  it('Contract v1.2+ exposes exact required tuning keys and updated night durations (240/270/300s)', () => {
+    // Updated in Phase 4 (Ticket-04 Section 6): contract_version upgraded "1.2" -> "1.3" while keeping all v1.2 keys intact.
+    expect(CONTRACT.contract_version).toBe('1.3');
     expect(TUNING.fuel_max).toBe(100);
     expect(TUNING.fuel_decay_per_s).toBe(1.0);
     expect(TUNING.fuel_per_mote).toBe(10);
@@ -398,8 +399,18 @@ describe('Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2)', () => {
       },
     });
     try {
-      saveSettings({ volume: 0.5, mouseSensitivity: 0.4, colorblindMode: true });
-      expect(loadSettings()).toEqual({ volume: 0.5, mouseSensitivity: 0.4, colorblindMode: true });
+      // Updated in Phase 4 (Ticket-04 Section 4): GameSettings expanded with reduceMotion, largeText & keybindings.
+      saveSettings({
+        ...DEFAULT_SETTINGS,
+        volume: 0.5,
+        mouseSensitivity: 0.4,
+        colorblindMode: true,
+      });
+      expect(loadSettings()).toMatchObject({
+        volume: 0.5,
+        mouseSensitivity: 0.4,
+        colorblindMode: true,
+      });
     } finally {
       Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: orig });
     }
