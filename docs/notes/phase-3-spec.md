@@ -1,0 +1,19 @@
+# Phase 3 Specification & Verification Plan (`Ticket-03 — "Đèn cạn dầu"` · `Contract v1.2`)
+
+> **Phase:** 3 (`Ticket-03` · `Test Contract v1.2`)
+> **Target tag:** `phase-3`
+> **Related ADR:** [ADR-001: Lantern Fuel State Machine & Dawn Survival Win Model](../adr/ADR-001-lantern-fuel-and-dawn-survival.md)
+> **Breaking Changes:** [CHANGELOG.md](../../CHANGELOG.md)
+
+## 1. Acceptance Criteria Matrix
+
+| ID | Feature / Rule (Ticket-03) | Verifiable Criteria | Verification Method |
+|---|---|---|---|
+| AC-P3-1 | **Lantern Fuel & Decay** | Lit lantern starts at `fuel = 100` (`6000` sixtieths), decays `1/60` per tick. At `fuel <= 0` (immediately after Step 2): `lit = false`, `deposited = 0`, `ever_lit = true`, emits `lantern_out {lantern_id}`, ambient dims. Relight costs `5` motes (`+40` score, `relit_count++`, `lantern_lit {relight: true}`). | `tests/phase3.test.ts` + `scenarios/phase3/fuel-decay-out-relight` |
+| AC-P3-2 | **Refueling & Selection** | Interact chooses nearest eligible lantern (unlit OR lit with `fuel < 100`, tie-break smaller `id`). Full lantern (`used = 0`) skipped (no event/score). `used = min(carried, ceil((100 - fuel)/10))`, `fuel = min(100, fuel + 10*used)`, `+5*used`, emits `refuel {lantern_id, amount, fuel}`. Refueling across `>= 30` restores safe zone & ejects shades inside `6 m` in `<= 30 t` without damage. | `tests/phase3.test.ts` + `scenarios/phase3/refuel-and-eject` |
+| AC-P3-3 | **Shade Fuel Drain (`drain`)** | `fuel < 30` loses safe zone (`fuel === 30` retains it). Only `wander` shades seek nearest weak lit lantern (`fuel < 30`, tie-break smaller `id`), else nearest unlit lantern. Enters `drain` at `<= 2 m` XZ, stands still, drains `5/60` per tick (stacks with other shades & `1/60` decay), emits `fuel_drain {lantern_id, shade_id, fuel}` every 60 drain ticks. Exits `drain` to `chase` (`<= 6 m`), `stunned` (Pulse), or `wander` (off / `>= 30` / `> 2 m`). Stun always recovers to `wander`. | `tests/phase3.test.ts` + `scenarios/phase3/shade-drain-stacking` |
+| AC-P3-4 | **Dawn Survival Win/Loss & Tick Order** | Night durations `240/270/300 s`. No early `all_lit` win. Dawn win (`dawn_survived`) when alive with `lit >= ceil(0.6 * total)` (`3/5`, `4/6`, `5/7`). Dawn loss (`dawn`) below threshold. Final tick runs all updates first; `no_flames` ALWAYS takes priority over `dawn_survived`/`dawn`. | `tests/phase3.test.ts` + `scenarios/phase3/dawn-survived-win` + `dawn-last-tick-no-flames` |
+| AC-P3-5 | **Progressive Capacity** | `capacity = min(20, 10 + 2 * successful_lights)` counting first lights & relights (excluding scenario pre-lit; honoring `scenario.player.successful_lights`). Exposed in `snapshot.player.capacity` & HUD (`carried / capacity`). | `tests/phase3.test.ts` + `tests/headless-cli.test.ts` + `src/game/hud.ts` |
+| AC-P3-6 | **New Scoring Formula** | `+5` per mote deposited/refueled, `+100` first light, `+40` relight, `+5` normal Pulse hit, `+15` total Pulse hit on draining shade, Dawn win bonus `+(50 + floor(fuel))` per lit lantern + `+50` per flame; time bonus removed. | `tests/phase3.test.ts` + `scenarios/phase3/pulse-drain-bonus` + `dawn-survived-win` |
+| AC-P3-7 | **Colorblind Mode & Visual Clarity** | Persisted `"Bảng màu dễ phân biệt"` toggle in Settings; Shade rim & eyes `#7A3CFF → #00B3FF`; UI danger `#FF5A5F → #FFFFFF` with `⚠` icon; unlit lanterns deflated 20% with paper tears; lit lanterns show 3D fuel bar blinking at 1 Hz when `fuel < 30`. | `tests/phase3.test.ts` (`PALETTE` & `settings.ts`) + code audit (`renderer3d.ts`, `hud.ts`, `styles.css`, `index.html`) |
+| AC-P3-8 | **Contract v1.2 Validation, Perf & Non-Superseded Regression** | All v1.2 schema fields validated (exit code `2` on invalid); all non-superseded Phase 1–2 tests & scenarios pass; full Night 3 (`18,000` ticks) completes in `<= 30 s` with byte-identical SHA-256 determinism. | `npm run verify` (`tests/` + `scripts/verify-phase3.mjs`) |

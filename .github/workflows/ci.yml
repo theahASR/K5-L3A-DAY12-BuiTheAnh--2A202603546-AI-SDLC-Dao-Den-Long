@@ -22,4 +22,4 @@ jobs:
       - name: Run unit & contract tests
         run: npm test
       - name: Run headless scenarios, regression, perf & determinism check
-        run: node scripts/verify-phase2.mjs --ci
+        run: node scripts/verify-phase3.mjs --ci
