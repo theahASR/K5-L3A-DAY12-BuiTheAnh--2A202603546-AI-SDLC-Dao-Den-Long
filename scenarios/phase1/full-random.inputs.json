@@ -1,0 +1,16 @@
+{
+  "frames": [
+    { "tick": 0, "move": [0, 1], "cam_yaw_deg": 0 },
+    { "tick": 60, "jump": true },
+    { "tick": 61, "jump": false },
+    { "tick": 300, "move": [1, 0], "cam_yaw_deg": 0 },
+    { "tick": 600, "move": [0, -1], "cam_yaw_deg": 0 },
+    { "tick": 900, "move": [-1, 0], "cam_yaw_deg": 0 },
+    { "tick": 1200, "move": [0, 1], "cam_yaw_deg": 0 },
+    { "tick": 1500, "move": [1, 0], "cam_yaw_deg": 0 },
+    { "tick": 1800, "move": [0, -1], "cam_yaw_deg": 0 },
+    { "tick": 2100, "move": [-1, 0], "cam_yaw_deg": 0 },
+    { "tick": 2400, "move": [0, 1], "cam_yaw_deg": 0 },
+    { "tick": 2700, "move": [1, 0], "cam_yaw_deg": 0 }
+  ]
+}

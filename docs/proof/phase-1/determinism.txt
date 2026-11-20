@@ -1,0 +1,12 @@
+Determinism Verification (Phase 1 — Test Contract v1.0)
+Command: node dist-headless/cli.js --seed 1337 --night 1 --inputs scenarios/phase1/full-random.inputs.json --ticks 3000 --snapshot-every 30
+Run 1 SHA-256: 6ae126d17da557f77957e095d92b1ba195b987ada81f4253f9702c9778fe8994
+Run 2 SHA-256: 6ae126d17da557f77957e095d92b1ba195b987ada81f4253f9702c9778fe8994
+Result: IDENTICAL (PASS)
+
+Scenario Summary:
+- win-flow: state=won, ticks=87, score=896, motes_picked=5 (140.4 ms)
+- pulse-stun: pulse_events=1, S1_tick10=stunned (x=8), S1_tick210=chase (162.1 ms)
+- safe-radius: min_shade_dist=6.050m (> 6.0m), flames_end=3 (195.1 ms)
+- shade-loss: state=lost, reason=no_flames, ticks=119, hits=2, first_drop=2 (206.6 ms)
+- dawn-loss: state=lost, reason=dawn, ticks=120 (181.1 ms)
