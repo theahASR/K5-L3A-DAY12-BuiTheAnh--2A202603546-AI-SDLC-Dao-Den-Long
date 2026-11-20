@@ -1,21 +1,23 @@
 import type { InputState } from '../core/types';
 
 /**
- * Translates keyboard + mouse drag into Test Contract InputState.
- * Uses exact camera yaw degrees so 3D play matches headless movement math.
+ * Translates keyboard + mouse drag into Contract v1.1 InputState.
+ * Controls: WASD move, Space jump, Shift dash, E/F interact, Q pulse, Esc/P pause.
  */
 export class InputController {
   private readonly keys = new Set<string>();
   private camYawDeg = 0;
   private dragging = false;
   private lastMouseX = 0;
+  mouseSensitivity = 0.35;
 
-  // Latched single-press flags so fast key taps are never missed between 60Hz ticks
   private jumpLatch = false;
   private interactLatch = false;
   private pulseLatch = false;
+  private dashLatch = false;
 
   onToggleMute?: () => void;
+  onPauseKey?: () => void;
 
   constructor(canvas: HTMLCanvasElement) {
     window.addEventListener('keydown', this.handleKeyDown);
@@ -35,7 +37,7 @@ export class InputController {
       if (!this.dragging) return;
       const dx = e.clientX - this.lastMouseX;
       this.lastMouseX = e.clientX;
-      this.camYawDeg = (((this.camYawDeg - dx * 0.35) % 360) + 360) % 360;
+      this.camYawDeg = (((this.camYawDeg - dx * this.mouseSensitivity) % 360) + 360) % 360;
     });
   }
 
@@ -53,12 +55,10 @@ export class InputController {
     if (!this.keys.has(code)) {
       if (code === 'Space') this.jumpLatch = true;
       if (code === 'KeyE' || code === 'KeyF') this.interactLatch = true;
-      if (code === 'KeyQ' || code === 'ShiftLeft' || code === 'ShiftRight') {
-        this.pulseLatch = true;
-      }
-      if (code === 'KeyM') {
-        this.onToggleMute?.();
-      }
+      if (code === 'KeyQ') this.pulseLatch = true;
+      if (code === 'ShiftLeft' || code === 'ShiftRight') this.dashLatch = true;
+      if (code === 'Escape' || code === 'KeyP') this.onPauseKey?.();
+      if (code === 'KeyM') this.onToggleMute?.();
     }
     this.keys.add(code);
   };
@@ -83,11 +83,11 @@ export class InputController {
     this.jumpLatch = false;
     this.interactLatch = false;
     this.pulseLatch = false;
+    this.dashLatch = false;
   }
 
-  sampleForTick(dt: number): InputState {
-    // Camera yaw rotation via Left/Right arrows or J/L
-    const yawSpeed = 110; // deg/s
+  sampleForTick(dt: number, pausePulse = false): InputState {
+    const yawSpeed = 110;
     if (this.keys.has('ArrowLeft') || this.keys.has('KeyJ')) {
       this.camYawDeg = (this.camYawDeg + yawSpeed * dt) % 360;
     }
@@ -95,12 +95,6 @@ export class InputController {
       this.camYawDeg = (this.camYawDeg - yawSpeed * dt + 360) % 360;
     }
 
-    // Screen-relative movement:
-    // Camera sits behind player at -Z (for yaw=0 looking toward +Z).
-    // Forward (W) = +Z, Right (D) = -X when camera looks along +Z from behind:
-    // Wait: let's match standard camera-behind (+Z forward, -X right -> or camera at +Z looking toward -Z!).
-    // With camera at (player.x - sin(yaw)*dist, y, player.z - cos(yaw)*dist) looking at player (+Z when yaw=0):
-    // Forward is +Z (z = +1), Right on screen is -X (x = -1).
     let mx = 0;
     let mz = 0;
     if (this.keys.has('KeyW') || this.keys.has('ArrowUp')) mz += 1;
@@ -110,15 +104,14 @@ export class InputController {
 
     const jump = this.jumpLatch || this.keys.has('Space');
     const interact = this.interactLatch || this.keys.has('KeyE') || this.keys.has('KeyF');
-    const pulse =
-      this.pulseLatch ||
-      this.keys.has('KeyQ') ||
-      this.keys.has('ShiftLeft') ||
-      this.keys.has('ShiftRight');
+    const pulse = this.pulseLatch || this.keys.has('KeyQ');
+    const dash =
+      this.dashLatch || this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
 
     this.jumpLatch = false;
     this.interactLatch = false;
     this.pulseLatch = false;
+    this.dashLatch = false;
 
     return {
       move: [mx, mz],
@@ -126,7 +119,8 @@ export class InputController {
       jump,
       interact,
       pulse,
-      dash: false,
+      dash,
+      pause: pausePulse,
     };
   }
 }
