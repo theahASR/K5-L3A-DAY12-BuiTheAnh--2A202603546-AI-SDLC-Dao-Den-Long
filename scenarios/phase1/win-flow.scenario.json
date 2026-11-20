@@ -11,7 +11,7 @@
   ],
   "shades": [],
   "lanterns": [
-    { "id": "L1", "pos": [0, 0, 10], "lit": false, "deposited": 0 },
+    { "id": "L1", "pos": [0, 0, 10], "lit": false, "deposited": 5 },
     { "id": "L2", "lit": true },
     { "id": "L3", "lit": true },
     { "id": "L4", "lit": true },

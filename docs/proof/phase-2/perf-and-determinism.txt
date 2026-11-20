@@ -1,0 +1,20 @@
+Phase 2 Verification, Performance & Determinism Summary (Contract v1.1)
+Node: v22.21.0 | Platform: win32 x64
+
+Full Night 3 Benchmark (21,600 ticks, seed=9001):
+  Elapsed: 953.9 ms (Budget: <= 30,000 ms) — PASS
+  Run 1 SHA-256: 01976124fde247a9ad07eed76b57449fa30e7a65620e243bdef52d0b8c1e740c
+  Run 2 SHA-256: 01976124fde247a9ad07eed76b57449fa30e7a65620e243bdef52d0b8c1e740c
+  Determinism: IDENTICAL (PASS)
+
+Scenario Results:
+- reg-win-flow (281.2 ms): state=won, ticks=87, score=896
+- reg-safe-radius (587.3 ms): min_dist=6.050m (> 6.0m), flames=3
+- reg-shade-loss (238.0 ms): state=lost, ticks=120, hits=2
+- p2-dash-flow (220.1 ms): dash_events=2, ticks=[6,96]
+- p2-fall-respawn (256.5 ms): fall_tick=69, flames=2, lost=4, respawned_at=[0,0,0]
+- p2-night2-island-hop (636.8 ms): landed_pos=[47.037,0,6.755], dist_to_B=23.94m (< 28m)
+- p2-night3-tiers-wind (393.3 ms): reached_tier2=true, wind_active_at_1800=true
+- p2-drifter-steal-drop (214.2 ms): steal_tick=16 (amt=3), drop_tick=26 (amt=3)
+- p2-charm-boost (205.5 ms): charm=C1 (600t), rapid_dashes=2
+- p2-pause-resume (203.6 ms): paused_sim_tick_frozen=10, resumed_at_tick=41

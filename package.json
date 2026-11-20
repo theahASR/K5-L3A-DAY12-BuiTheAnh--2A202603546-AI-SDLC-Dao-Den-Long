@@ -9,7 +9,7 @@
     "preview": "vite preview --host",
     "headless": "node dist-headless/cli.js",
     "test": "vitest run",
-    "verify": "npm run build && npm test && node scripts/verify-phase1.mjs"
+    "verify": "npm run build && npm test && node scripts/verify-phase2.mjs"
   },
   "dependencies": {
     "three": "^0.170.0"
