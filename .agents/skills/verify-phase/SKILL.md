@@ -1,18 +1,20 @@
 ---
 name: verify-phase
-description: Run full build, unit tests, headless contract scenarios, determinism checks, and write genuine proof artifacts for the current phase. Use before committing or tagging any phase.
+description: Run full build, unit tests, Phase 1 regression, Phase 2 contract v1.1 scenarios, determinism, and 21,600-tick performance benchmark, writing genuine proof artifacts. Use before committing or tagging any phase.
 ---
 
 # Verify Phase Skill
 
-Use this skill whenever completing a feature milestone or preparing to tag a phase (`phase-1` .. `phase-4`).
+Use this skill whenever completing a milestone or preparing to tag a phase (`phase-1` .. `phase-4`).
 
 ## Steps
-1. **Build & Typecheck:** Run `npm run build` and verify both `dist/` (3D web app) and `dist-headless/cli.js` (headless CLI) compile with zero errors.
-2. **Automated Tests:** Run `npm test` (Vitest unit + headless CLI contract tests). All tests must pass.
-3. **Headless Scenarios & Determinism Gate:** Run `npm run verify` (`scripts/verify-phase1.mjs`). Confirm:
-   - Every scenario exits with the expected exit code (`0` for valid runs, `2` for malformed input/scenario tests).
-   - Determinism check compares two independent runs with identical `--seed`, `--scenario`, and `--inputs` byte-for-byte (SHA-256 identical).
-   - Genuine JSONL outputs and logs are written to `docs/proof/phase-1/`.
-4. **Contract Sync Check:** Confirm `game.contract.json` tuning values match `src/core/config.ts` (imported directly) and `README.md` scoring documentation.
-5. **Honest Reporting:** Update the traceability table in `docs/proof/phase-1/REPORT.md`. Mark any unverified or incomplete item honestly as `Chưa đạt` with reason. Never hand-edit output files.
+1. **Build & Typecheck:** Run `npm run build` and verify both `dist/` (3D web app) and `dist-headless/cli.js` compile with zero errors.
+2. **Automated Tests (Unit + CLI + Regression):** Run `npm test` (Vitest). Confirm Phase 1 regression scenarios (adapted to Contract v1.1 standardized numbers with documented reasons) and all Phase 2 tests pass.
+3. **Headless Scenarios, Determinism & Perf Gate:** Run `npm run verify`:
+   - Phase 1 regression scenarios pass under Contract v1.1 tuning.
+   - Phase 2 scenarios cover every new feature: dash, fall & respawn, Night 2 jump pad & bamboo bridge, Night 3 ramps/tier-2/bell-tower/wind, Gió Lạc (drifter steal & pulse drop), Bùa Gió (wind charm), pause/resume.
+   - Determinism check compares two full Night 3 runs byte-for-byte (SHA-256 identical).
+   - Full-night performance check: 21,600 ticks (Night 3) completes in `<= 30 s`.
+   - Malformed inputs/scenario files exit with code `2` and stderr output.
+4. **Independent Review:** Run a read-only `research` subagent to audit implementation against the current Ticket and Test Contract before tagging.
+5. **Honest Proof Reporting:** Save verbatim outputs to `docs/proof/phase-N/` and update `docs/proof/phase-N/REPORT.md` + `docs/notes/ai-log.md`. Never hand-edit outputs.
