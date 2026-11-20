@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đảo Đèn Lồng — Đêm 1: Đảo Bến</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game-canvas"></canvas>
+
+      <header id="hud" class="hud hidden" aria-label="Thông số trò chơi">
+        <div class="hud-pill">
+          <span class="label">Đèn Lồng</span>
+          <strong id="hud-lanterns">0 / 5</strong>
+        </div>
+        <div class="hud-pill">
+          <span class="label">Đom Đóm</span>
+          <strong id="hud-motes">0 / 5</strong>
+        </div>
+        <div class="hud-pill">
+          <span class="label">Ngọn Lửa</span>
+          <strong id="hud-flames">🔥🔥🔥</strong>
+        </div>
+        <div class="hud-pill">
+          <span class="label">Thời Gian</span>
+          <strong id="hud-time">05:00</strong>
+        </div>
+        <div class="hud-pill">
+          <span class="label">Điểm</span>
+          <strong id="hud-score">0</strong>
+        </div>
+      </header>
+
+      <div id="action-hint" class="action-hint hidden"></div>
+
+      <footer id="controls-bar" class="controls-bar hidden">
+        <span><b>WASD</b> Di chuyển</span>
+        <span><b>Space</b> Nhảy</span>
+        <span><b>E</b> Thắp đèn</span>
+        <span id="hud-pulse"><b>Q / Shift</b> Tỏa sáng (1 đom đóm)</span>
+        <span><b>Kéo chuột / ← →</b> Xoay camera</span>
+      </footer>
+
+      <section id="overlay" class="overlay">
+        <div class="card">
+          <p class="eyebrow">ĐÊM 1 · ĐẢO BẾN</p>
+          <h1 id="overlay-title">Đảo Đèn Lồng</h1>
+          <p id="overlay-desc">
+            Cùng Mây thu thập đom đóm vàng ấm trên hòn đảo giữa biển mây và thắp sáng cả 5 Đèn Lồng Lớn trước khi bình minh đến. Tránh Bóng Mực tím đen — tỏa sáng để xua chúng đi hoặc trú gần đèn đã thắp!
+          </p>
+          <div id="overlay-stats" class="stats hidden"></div>
+          <div class="controls-grid">
+            <div><b>WASD</b> Di chuyển</div>
+            <div><b>Space</b> Nhảy</div>
+            <div><b>E / F</b> Nạp ánh sáng vào đèn</div>
+            <div><b>Q / Shift</b> Tỏa sáng xua Bóng Mực</div>
+            <div><b>Kéo chuột / ← →</b> Xoay camera</div>
+            <div><b>M</b> Bật/tắt âm thanh</div>
+          </div>
+          <button id="overlay-btn" class="primary-btn">Bắt đầu Đêm 1</button>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
