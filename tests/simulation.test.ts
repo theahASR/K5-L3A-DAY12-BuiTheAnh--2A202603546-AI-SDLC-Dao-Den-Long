@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   CHARM_DURATION_TICKS,
   CHARM_SPEED,
-  DT,
   PALETTE,
   PULSE_PUSH_TICKS,
   TUNING,
@@ -113,9 +112,11 @@ describe('GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract 
     expect(sim.score).toBe(0); // Ticket-02: +10 per deposited mote, not on pickup
   });
 
-  it('deposits motes (+10 each), lights lantern (+100), and wins when all 5 are lit', () => {
-    // Updated from Phase 1: lantern_cost changed 5 -> 10, interact_radius 2.5 -> 2.0,
-    // score includes +10 per deposited mote per Ticket-02.
+  it('deposits motes (+5 each), lights lantern (+100, relight:false), increases capacity to 12, and does NOT end night early (Ticket-03)', () => {
+    // Updated from Phase 1/2 -> Phase 3 (Ticket-03 Contract v1.2):
+    // [THAY THẾ] Per-mote score changed +10 -> +5, lighting all lanterns no longer triggers early win (`all_lit` removed);
+    // instead, lantern starts with fuel=100, emits lantern_lit { lantern_id, relight: false }, increments player.capacity 10 -> 12,
+    // and the game continues in 'playing' state until dawn.
     const sim = new GameSimulation({
       seed: 4,
       scenario: {
@@ -134,17 +135,14 @@ describe('GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract 
     });
 
     const events = sim.step({ ...createDefaultInput(), interact: true });
-    expect(events.map((e) => e.name)).toEqual(['night_start', 'deposit', 'lantern_lit', 'game_over']);
+    expect(events.map((e) => e.name)).toEqual(['night_start', 'deposit', 'lantern_lit']);
     expect(events[1].data).toEqual({ lantern_id: 'L1', amount: 10, deposited: 10 });
-    expect(events[3].data).toEqual({ result: 'won', reason: 'all_lit' });
-    expect(sim.state).toBe('won');
-
-    const expectedDeposit = 10 * TUNING.score.per_mote;
-    const expectedTimeBonus = Math.floor(120 - DT) * TUNING.score.per_second_left;
-    const expectedFlameBonus = 3 * TUNING.score.per_flame_left;
-    expect(sim.score).toBe(
-      expectedDeposit + TUNING.score.per_lantern + expectedTimeBonus + expectedFlameBonus
-    );
+    expect(events[2].data).toEqual({ lantern_id: 'L1', relight: false });
+    expect(sim.state).toBe('playing');
+    expect(sim.player.capacity).toBe(12);
+    expect(sim.lanterns[0].lit).toBe(true);
+    expect(sim.getLanternFuel(sim.lanterns[0])).toBe(100);
+    expect(sim.score).toBe(10 * TUNING.score.per_mote + TUNING.score.per_lantern); // 50 + 100 = 150
   });
 
   it('pulse (cost 3, 3D radius 5m) stuns 120t, pushes 4m over 15t, awards +5, and enforces 180t cooldown', () => {

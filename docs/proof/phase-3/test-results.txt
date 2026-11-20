@@ -1,0 +1,43 @@
+﻿
+ RUN  v2.1.9 C:/Users/ThinkPad/Downloads/K5-L3A-DAY12-BuiTheAnh--2A202603546-AI-SDLC-Dao-Den-Long
+
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Contract v1.2 exposes exact required tuning keys and updated night durations (240/270/300s)
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Decays fuel at exact 1/60 per tick, emits lantern_out at 0, remembers ever_lit, and relights for 5 motes (+40)
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Refuels using ceil((100 - fuel)/10), skips full lanterns (used=0), and restores safe zone when crossing >= 30
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Enforces exact fuel >= 30 safe zone boundary (exact 30 keeps safe zone, < 30 loses safe zone)
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Stacks multi-shade drain (1 + 5*N fuel/s), emits fuel_drain every 60t, switches drain->chase at <=6m, and awards +15 Pulse on draining shade
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Evaluates dawn survival threshold per night (3/5, 4/6, 5/7), awards dawn bonus, and prioritizes no_flames on last tick
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Progressive carry capacity scales 10 + 2*successful_lights up to 20, excludes pre-lit scenario lanterns, and honors scenario successful_lights
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Supports Colorblind Mode palette tokens (#00B3FF shade rim/eyes, #FFFFFF UI warning) and persists setting
+ ✓ tests/phase3.test.ts > Ticket-03 — "Đèn cạn dầu" (Phase 3 · Contract v1.2) > Audit edge cases: interact & wander id tie-breaks, chase target lock, drain exits, floor(fuel) bonus, Night 2 win (4/6) & Night 3 loss (4/7)
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > initializes player at (0,0,0) with 5 Night 1 lanterns and emits no setup events or score
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > moves player according to cam_yaw_deg formula and normalizes diagonal move vectors
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > jumps only on rising edge (7.0 m/s, -20 m/s²) and lands cleanly at Y = 0
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > picks up motes within XZ <= 1.0m & dY <= 1.5m up to carry_capacity (10); pickup awards 0 score per Ticket-02
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > deposits motes (+5 each), lights lantern (+100, relight:false), increases capacity to 12, and does NOT end night early (Ticket-03)
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > pulse (cost 3, 3D radius 5m) stuns 120t, pushes 4m over 15t, awards +5, and enforces 180t cooldown
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > prevents shades from entering safe_radius (6m) around lit lantern and ejects trapped shades in <= 30t
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > shade hit spawns dropped motes on 1.5-2.5m ring (TTL 480t, pickable next tick), recoils 60t, and loses at 0 flames
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 1 Regression (updated for Ticket-02 Contract v1.1) > fractional time_left_s (3.7s) triggers dawn loss on exact tick 222
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Dash moves at 14 m/s for 12t, holds altitude in air, enforces 90t cooldown from start, emits dash
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Falling off island (Y < -10) ignores invuln, loses 1 flame & all carried motes, waits 60t, respawns with 90t invuln
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Night 2 Jump Pad launches player from Island A (20,0,18) to Island B ignoring move keys
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Night 3 ramps, Tier 2 jump pad, Bell Tower blocking, and Wind gust at tick 1800 work accurately
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Gió Lạc (Drifter) steals 3 motes ignoring invuln, and Pulse during flee drops them all
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Bùa Gió (Wind Charm) boosts speed to 7.2 m/s and removes dash cooldown for 600 ticks
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Pause freezes sim_tick, time_left_s, and timers while tick advances; Resume continues cleanly
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > exposes exact Ticket-02 standard color palette hex values
+ ✓ tests/simulation.test.ts > GameSimulation — Phase 2 Features (Ticket-02 · Contract v1.1) > Audit regression: Night 3 Tier 2 Drifter tracks elevation so 3D Pulse hits it; idle Drifter never steals < 5 motes
+ ✓ tests/headless-cli.test.ts > Headless CLI — Test Contract v1.2, Phase 1–2 Regression & Phase 3 Scenarios > Phase 1–2 regression (updated for Ticket-03 v1.2): win-flow lights L1 without early all_lit win and emits v1.2 schema 372ms
+ ✓ tests/headless-cli.test.ts > Headless CLI — Test Contract v1.2, Phase 1–2 Regression & Phase 3 Scenarios > Phase 2 regression: supports --night 2 (jump pad + bridge) and --night 3 (tiers + wind) 709ms
+ ✓ tests/headless-cli.test.ts > Headless CLI — Test Contract v1.2, Phase 1–2 Regression & Phase 3 Scenarios > Phase 2 regression: pause/resume freezes sim_tick & time_left_s and emits paused/resumed events 367ms
+ ✓ tests/headless-cli.test.ts > Headless CLI — Test Contract v1.2, Phase 1–2 Regression & Phase 3 Scenarios > Phase 3: fuel decay -> lantern_out -> relight (5 motes, +40, relit_count=1, capacity=12) 302ms
+ ✓ tests/headless-cli.test.ts > Headless CLI — Test Contract v1.2, Phase 1–2 Regression & Phase 3 Scenarios > Phase 3: dawn_survived win & exact dawn bonus; last-tick no_flames priority 559ms
+ ✓ tests/headless-cli.test.ts > Headless CLI — Test Contract v1.2, Phase 1–2 Regression & Phase 3 Scenarios > Phase 3: full Night 3 (18,000 ticks under v1.2 300s duration) is deterministic and finishes well under 30s 5560ms
+ ✓ tests/headless-cli.test.ts > Headless CLI — Test Contract v1.2, Phase 1–2 Regression & Phase 3 Scenarios > exits with code 2 on invalid v1.2 shade state, out-of-range fuel, or non-monotonic input ticks 664ms
+
+ Test Files  3 passed (3)
+      Tests  34 passed (34)
+   Start at  23:03:21
+   Duration  12.11s (transform 1.36s, setup 0ms, collect 2.32s, tests 8.97s, environment 3ms, prepare 3.07s)
+

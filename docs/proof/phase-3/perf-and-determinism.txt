@@ -1,0 +1,26 @@
+Phase 3 Verification, Performance & Determinism Summary (Contract v1.2)
+Node: v22.21.0 | Platform: win32 x64
+
+Full Night 3 Benchmark (18,000 ticks = 300s under v1.2, seed=9001):
+  Elapsed: 3765.2 ms (Budget: <= 30,000 ms) — PASS
+  Run 1 SHA-256: adc2ce5706632601020dc82b4173befffa2e26389b9c88a2ee2ffe8b8e66f7fe
+  Run 2 SHA-256: adc2ce5706632601020dc82b4173befffa2e26389b9c88a2ee2ffe8b8e66f7fe
+  Determinism: IDENTICAL (PASS)
+
+Scenario Results:
+- reg-safe-radius (411.1 ms): min_dist=6.050m (> 6.0m), fuel_end=95
+- reg-shade-loss (307.7 ms): state=lost, ticks=120, hits=2
+- reg-dawn-loss (285.6 ms): state=lost, reason=dawn, ticks=120
+- p2-dash-flow (248.0 ms): dash_events=2, ticks=[6,96]
+- p2-fall-respawn (280.2 ms): fall_tick=69, flames=2, respawned=[0,0,0]
+- p2-night2-island-hop (344.4 ms): landed_pos=[47.037,0,6.755], dist_to_B=23.94m
+- p2-night3-tiers-wind (343.7 ms): reached_tier2=true, wind_active_at_1800=true
+- p2-drifter-steal-drop (288.2 ms): steal_tick=16, drop_tick=26, amt=3
+- p2-charm-boost (255.6 ms): charm=C1, rapid_dashes=2
+- p2-pause-resume (333.0 ms): paused_sim_tick_frozen=10, resumed_at_tick=41
+- p3-fuel-decay-out-relight (336.8 ms): lantern_out=t90, relit=t100 (relight=true), capacity=12, score=65
+- p3-refuel-and-eject (274.7 ms): refuel_amt=3, fuel=54.9, ejected_dist=6.05m, flames=3
+- p3-shade-drain-stacking (268.8 ms): both_in_drain=true, fuel_drain_events=4, lantern_out=t147
+- p3-pulse-drain-bonus (262.8 ms): pulse_score=20 (+15 draining +5 normal), stunned_both=true
+- p3-dawn-survived-win (363.3 ms): result=won, reason=dawn_survived, ticks=120, score=424
+- p3-dawn-last-tick-no-flames (286.9 ms): tick=1, result=lost, reason=no_flames (overrides dawn_survived)
