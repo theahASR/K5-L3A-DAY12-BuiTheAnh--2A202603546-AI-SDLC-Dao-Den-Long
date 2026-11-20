@@ -6,7 +6,7 @@ import { ContractValidationError, validateInputsFile, validateScenarioFile } fro
 
 interface CliArgs {
   seed: number;
-  night: number;
+  night: 1 | 2 | 3;
   scenarioPath?: string;
   inputsPath?: string;
   ticks: number;
@@ -63,8 +63,10 @@ function parseArgs(argv: string[]): CliArgs {
   }
 
   if (seed === undefined) throw new Error('Missing required flag: --seed <int>');
-  if (night === undefined) throw new Error('Missing required flag: --night <int>');
-  if (night !== 1) throw new Error(`Unsupported --night ${night}; Phase 1 supports --night 1`);
+  if (night === undefined) throw new Error('Missing required flag: --night <1|2|3>');
+  if (night !== 1 && night !== 2 && night !== 3) {
+    throw new Error(`Unsupported --night ${night}; Contract v1.1 supports --night 1, 2, or 3`);
+  }
   if (ticks === undefined || ticks < 0) {
     throw new Error('Missing or invalid required flag: --ticks <non-negative int>');
   }
@@ -73,7 +75,15 @@ function parseArgs(argv: string[]): CliArgs {
     throw new Error('--snapshot-every must be a positive integer');
   }
 
-  return { seed, night, scenarioPath, inputsPath, ticks, outPath, snapshotEvery };
+  return {
+    seed,
+    night,
+    scenarioPath,
+    inputsPath,
+    ticks,
+    outPath,
+    snapshotEvery,
+  };
 }
 
 function readJsonOrThrowFormatError(filePath: string, label: string): unknown {
@@ -114,15 +124,15 @@ export function runHeadless(argv: string[]): number {
       scenario,
     });
 
-    const records: JsonlRecord[] = [];
-    // Snapshot tick 0: state right after scenario setup, before applying input
-    records.push(sim.getSnapshot(0));
+    const lines: string[] = [];
+    // Snapshot tick 0: post-scenario setup, pre-input
+    lines.push(JSON.stringify(sim.getSnapshot(0)));
 
     const frames = inputs?.frames ?? [];
     let frameIdx = 0;
     const currentInput: InputState = createDefaultInput();
 
-    for (let k = 0; k < args.ticks && sim.state === 'playing'; k++) {
+    for (let k = 0; k < args.ticks && sim.state !== 'won' && sim.state !== 'lost'; k++) {
       if (frameIdx < frames.length && frames[frameIdx].tick === k) {
         const f = frames[frameIdx++];
         if (f.move !== undefined) currentInput.move = [f.move[0], f.move[1]];
@@ -131,27 +141,28 @@ export function runHeadless(argv: string[]): number {
         if (f.interact !== undefined) currentInput.interact = f.interact;
         if (f.pulse !== undefined) currentInput.pulse = f.pulse;
         if (f.dash !== undefined) currentInput.dash = f.dash;
+        if (f.pause !== undefined) currentInput.pause = f.pause;
       }
 
       const events = sim.step(currentInput);
       for (const ev of events) {
-        records.push(ev);
+        lines.push(JSON.stringify(ev));
       }
 
       const nextTick = k + 1;
       if (nextTick % args.snapshotEvery === 0) {
-        records.push(sim.getSnapshot(nextTick));
+        lines.push(JSON.stringify(sim.getSnapshot(nextTick)));
       }
     }
 
-    records.push(sim.getEndRecord());
+    const endRec: JsonlRecord = sim.getEndRecord();
+    lines.push(JSON.stringify(endRec));
 
     const outDir = dirname(args.outPath);
     if (outDir && outDir !== '.') {
       mkdirSync(outDir, { recursive: true });
     }
-    const content = records.map((r) => JSON.stringify(r)).join('\n') + '\n';
-    writeFileSync(args.outPath, content, 'utf-8');
+    writeFileSync(args.outPath, lines.join('\n') + '\n', 'utf-8');
     return 0;
   } catch (err) {
     if (err instanceof ContractValidationError) {
