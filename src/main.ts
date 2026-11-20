@@ -15,6 +15,7 @@ const sfx = new SoundEffects();
 const settings = loadSettings();
 sfx.setVolume(settings.volume);
 input.mouseSensitivity = settings.mouseSensitivity;
+renderer.setColorblindMode(settings.colorblindMode);
 input.onToggleMute = () => sfx.toggleMute();
 
 let sim = new GameSimulation({ seed: 2026, night: 1 });
@@ -51,6 +52,7 @@ const hud = new HudController(
     onSettingsChange: (next) => {
       sfx.setVolume(next.volume);
       input.mouseSensitivity = next.mouseSensitivity;
+      renderer.setColorblindMode(next.colorblindMode);
       saveSettings(next);
     },
   },

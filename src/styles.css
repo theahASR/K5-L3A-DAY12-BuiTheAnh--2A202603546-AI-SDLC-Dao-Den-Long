@@ -8,6 +8,10 @@
   --ui-text: #f5f1e6;
 }
 
+body.colorblind-mode {
+  --danger: #ffffff;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -142,6 +146,17 @@ body,
   font-weight: 600;
 }
 
+.alert-badge {
+  background: rgba(14, 20, 48, 0.88);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  animation: pulse-blink 1s infinite;
+}
+
 .hud-top-right {
   position: fixed;
   top: 16px;
@@ -215,11 +230,12 @@ body,
 
 .mote-slots {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+  flex-wrap: nowrap;
 }
 
 .mote-slot {
-  width: 22px;
+  width: 18px;
   height: 14px;
   border-radius: 4px;
   border: 1px solid rgba(255, 229, 138, 0.45);
@@ -427,7 +443,7 @@ body,
 }
 
 .secondary-btn.danger {
-  border-color: rgba(255, 90, 95, 0.6);
+  border-color: var(--danger);
   color: var(--danger);
 }
 
@@ -449,4 +465,25 @@ body,
 .setting-field input[type='range'] {
   width: 100%;
   accent-color: var(--lantern-lit);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.checkbox-label input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: #00b3ff;
+  cursor: pointer;
+}
+
+.setting-hint {
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(245, 241, 230, 0.78);
 }

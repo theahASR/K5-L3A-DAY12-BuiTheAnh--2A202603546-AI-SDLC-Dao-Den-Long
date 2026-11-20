@@ -6,9 +6,15 @@ import type { LanternEntity } from '../core/types';
 
 interface LanternVisual {
   group: THREE.Group;
+  core: THREE.Mesh;
   coreMat: THREE.MeshStandardMaterial;
+  cap: THREE.Mesh;
+  tearGroup: THREE.Group;
   light: THREE.PointLight;
   safeRing: THREE.Mesh;
+  fuelBarGroup: THREE.Group;
+  fuelBarFill: THREE.Mesh;
+  fuelBarFillMat: THREE.MeshBasicMaterial;
   orbMeshes: THREE.Mesh[];
 }
 
@@ -51,6 +57,7 @@ export class Renderer3D {
 
   private builtNight: 1 | 2 | 3 | null = null;
   private elapsed = 0;
+  private colorblindMode = false;
 
   constructor(canvas: HTMLCanvasElement) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -480,11 +487,11 @@ export class Renderer3D {
     hatLanternGroup.add(playerLight);
     group.add(hatLanternGroup);
 
-    // Orbiting carried firefly indicators (up to 10)
+    // Orbiting carried firefly indicators (up to capacity_max = 20)
     const carriedOrbs: THREE.Mesh[] = [];
     const orbGeo = new THREE.SphereGeometry(0.075, 8, 8);
     const orbMat = new THREE.MeshBasicMaterial({ color: PALETTE.moteCore });
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       const orb = new THREE.Mesh(orbGeo, orbMat);
       orb.visible = false;
       group.add(orb);
@@ -528,6 +535,20 @@ export class Renderer3D {
     core.position.y = 3.15;
     group.add(core);
 
+    // Non-color distinction for unlit lanterns: dark jagged paper tear strips
+    const tearGroup = new THREE.Group();
+    tearGroup.position.y = 3.15;
+    const tearMat = new THREE.MeshBasicMaterial({ color: 0x161822, side: THREE.DoubleSide });
+    for (let t = 0; t < 4; t++) {
+      const ang = (t / 4) * Math.PI * 2 + 0.4;
+      const slash = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.72), tearMat);
+      slash.position.set(Math.cos(ang) * 0.67, (t % 2 === 0 ? 0.06 : -0.06), Math.sin(ang) * 0.67);
+      slash.lookAt(Math.cos(ang) * 2, slash.position.y, Math.sin(ang) * 2);
+      slash.rotateZ(t % 2 === 0 ? 0.35 : -0.4);
+      tearGroup.add(slash);
+    }
+    group.add(tearGroup);
+
     const cap = new THREE.Mesh(
       new THREE.ConeGeometry(1.15, 0.65, 8),
       new THREE.MeshStandardMaterial({ color: PALETTE.mayScarfCharm, roughness: 0.75 })
@@ -535,6 +556,25 @@ export class Renderer3D {
     cap.position.y = 3.95;
     cap.castShadow = true;
     group.add(cap);
+
+    // Overhead 3D fuel bar (visible on lit lanterns; blinks at 1 Hz when fuel < 30)
+    const fuelBarGroup = new THREE.Group();
+    fuelBarGroup.position.y = 4.75;
+    const fuelBg = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.56, 0.24),
+      new THREE.MeshBasicMaterial({ color: 0x0e1430, side: THREE.DoubleSide })
+    );
+    fuelBarGroup.add(fuelBg);
+
+    const fuelBarFillMat = new THREE.MeshBasicMaterial({
+      color: PALETTE.lanternLit,
+      side: THREE.DoubleSide,
+    });
+    const fuelBarFill = new THREE.Mesh(new THREE.PlaneGeometry(1.44, 0.14), fuelBarFillMat);
+    fuelBarFill.position.z = 0.01;
+    fuelBarGroup.add(fuelBarFill);
+    fuelBarGroup.visible = false;
+    group.add(fuelBarGroup);
 
     const light = new THREE.PointLight(PALETTE.lanternLit, 0, 18);
     light.position.y = 3.2;
@@ -573,7 +613,19 @@ export class Renderer3D {
     }
 
     this.scene.add(group);
-    const vis: LanternVisual = { group, coreMat, light, safeRing, orbMeshes };
+    const vis: LanternVisual = {
+      group,
+      core,
+      coreMat,
+      cap,
+      tearGroup,
+      light,
+      safeRing,
+      fuelBarGroup,
+      fuelBarFill,
+      fuelBarFillMat,
+      orbMeshes,
+    };
     this.lanternVisuals.set(lantern.id, vis);
     return vis;
   }
@@ -599,12 +651,22 @@ export class Renderer3D {
     return g;
   }
 
+  setColorblindMode(enabled: boolean): void {
+    this.colorblindMode = enabled;
+    const rimHex = enabled ? PALETTE.shadeRimColorblind : PALETTE.shadeRim;
+    for (const vis of this.shadeVisuals.values()) {
+      vis.bodyMat.emissive.setHex(rimHex);
+      vis.rimMat.color.setHex(rimHex);
+    }
+  }
+
   private createShadeVisual(): ShadeVisual {
     const group = new THREE.Group();
+    const rimHex = this.colorblindMode ? PALETTE.shadeRimColorblind : PALETTE.shadeRim;
 
     const bodyMat = new THREE.MeshStandardMaterial({
       color: PALETTE.shadeBody,
-      emissive: PALETTE.shadeRim,
+      emissive: rimHex,
       emissiveIntensity: 0.55,
       roughness: 0.5,
     });
@@ -617,7 +679,13 @@ export class Renderer3D {
     hood.position.y = 0.72;
     group.add(hood);
 
-    const rimMat = new THREE.MeshBasicMaterial({ color: PALETTE.shadeRim });
+    const rimMat = new THREE.MeshBasicMaterial({ color: rimHex });
+    // Subtle outer rim ring so rim color (#7A3CFF or #00B3FF) reads clearly from all angles
+    const rimRing = new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.045, 6, 20), rimMat);
+    rimRing.rotation.x = Math.PI / 2;
+    rimRing.position.y = -0.3;
+    group.add(rimRing);
+
     const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), rimMat);
     leftEye.position.set(-0.16, 0.76, 0.4);
     group.add(leftEye);
@@ -702,14 +770,25 @@ export class Renderer3D {
     y: number;
     angleDeg: number;
   } {
+    // Prioritize urgent low-fuel lit lanterns (< 30) first, then unlit lanterns
     let nearest: LanternEntity | null = null;
     let bestD = Infinity;
     for (const l of sim.lanterns) {
-      if (l.lit) continue;
+      if (!sim.isLowFuel(l)) continue;
       const d = Math.hypot(l.x - sim.player.x, l.z - sim.player.z);
       if (d < bestD) {
         bestD = d;
         nearest = l;
+      }
+    }
+    if (!nearest) {
+      for (const l of sim.lanterns) {
+        if (l.lit) continue;
+        const d = Math.hypot(l.x - sim.player.x, l.z - sim.player.z);
+        if (d < bestD) {
+          bestD = d;
+          nearest = l;
+        }
       }
     }
     if (!nearest) return { visible: false, x: 0, y: 0, angleDeg: 0 };
@@ -835,18 +914,57 @@ export class Renderer3D {
       this.pulseLight.intensity = 0;
     }
 
-    // Sync Lanterns
+    // Sync Lanterns (incl. fuel bar, 1 Hz low-fuel blink, safe zone >= 30, 20% deflated & torn unlit form)
+    const lowFuelBlink1Hz = Math.sin(this.elapsed * Math.PI * 2) >= 0;
     for (const lantern of sim.lanterns) {
       const vis = this.ensureLanternVisual(lantern, sim);
       vis.group.position.set(lantern.x, lantern.y, lantern.z);
-      const fillRatio = lantern.deposited / sim.tuning.lantern_cost;
+      const requiredCost = sim.getLanternLightCost(lantern);
+      const fillRatio = requiredCost > 0 ? lantern.deposited / requiredCost : 0;
+
       if (lantern.lit) {
-        vis.coreMat.color.setHex(PALETTE.lanternCore);
-        vis.coreMat.emissive.setHex(PALETTE.lanternLit);
-        vis.coreMat.emissiveIntensity = 2.3 + Math.sin(this.elapsed * 3.2) * 0.2;
-        vis.light.intensity = 5.5;
-        vis.safeRing.visible = true;
+        const fuel = sim.getLanternFuel(lantern);
+        const fuelRatio = Math.max(0, Math.min(1, fuel / sim.tuning.fuel_max));
+        const lowFuel = sim.isLowFuel(lantern);
+
+        // Full inflated silhouette, no tear marks
+        vis.core.scale.set(1.0, 1.0, 1.0);
+        vis.cap.position.y = 3.95;
+        vis.tearGroup.visible = false;
+
+        // Safe zone ring visible ONLY when fuel >= 30
+        vis.safeRing.visible = sim.hasSafeZone(lantern);
+
+        // 1 Hz slow blink on both lantern & fuel bar when fuel < 30
+        if (lowFuel) {
+          vis.coreMat.color.setHex(lowFuelBlink1Hz ? PALETTE.lanternCore : PALETTE.lanternLit);
+          vis.coreMat.emissive.setHex(PALETTE.lanternLit);
+          vis.coreMat.emissiveIntensity = lowFuelBlink1Hz ? 2.1 : 0.45;
+          vis.light.intensity = lowFuelBlink1Hz ? 4.4 : 1.1;
+          vis.fuelBarGroup.visible = lowFuelBlink1Hz;
+          vis.fuelBarFillMat.color.setHex(
+            this.colorblindMode ? PALETTE.uiDangerColorblind : PALETTE.uiDanger
+          );
+        } else {
+          vis.coreMat.color.setHex(PALETTE.lanternCore);
+          vis.coreMat.emissive.setHex(PALETTE.lanternLit);
+          vis.coreMat.emissiveIntensity = 2.3 + Math.sin(this.elapsed * 3.2) * 0.2;
+          vis.light.intensity = 5.5;
+          vis.fuelBarGroup.visible = true;
+          vis.fuelBarFillMat.color.setHex(PALETTE.lanternLit);
+        }
+
+        const clampedBar = Math.max(0.02, fuelRatio);
+        vis.fuelBarFill.scale.x = clampedBar;
+        vis.fuelBarFill.position.x = -(1 - clampedBar) * 0.72;
+        vis.fuelBarGroup.lookAt(this.camera.position);
       } else {
+        // Color-independent unlit form: 20% deflated height + visible paper tears
+        vis.core.scale.set(1.0, 0.8, 1.0);
+        vis.cap.position.y = 3.81;
+        vis.tearGroup.visible = true;
+        vis.fuelBarGroup.visible = false;
+
         vis.coreMat.color
           .setHex(PALETTE.lanternOff)
           .lerp(new THREE.Color(PALETTE.lanternLit), fillRatio * 0.65);
@@ -895,11 +1013,23 @@ export class Renderer3D {
 
       if (shade.state === 'stunned') {
         vis.stunRing.visible = true;
+        vis.group.scale.set(1, 1, 1);
         vis.group.rotation.y += dt * 7;
         vis.bodyMat.color.setHex(PALETTE.shadeStunned);
         vis.bodyMat.emissiveIntensity = 0.85;
+      } else if (shade.state === 'drain') {
+        vis.stunRing.visible = false;
+        const pulseScale = 1 + Math.sin(this.elapsed * 8) * 0.08;
+        vis.group.scale.set(pulseScale, 0.92, pulseScale);
+        vis.bodyMat.color.setHex(PALETTE.shadeBody);
+        vis.bodyMat.emissiveIntensity = 1.15;
+        const targetL = sim.lanterns.find((l) => l.id === shade.targetLanternId);
+        if (targetL) {
+          vis.group.rotation.y = Math.atan2(targetL.x - shade.x, targetL.z - shade.z);
+        }
       } else {
         vis.stunRing.visible = false;
+        vis.group.scale.set(1, 1, 1);
         vis.bodyMat.color.setHex(PALETTE.shadeBody);
         vis.bodyMat.emissiveIntensity = shade.state === 'spawning' ? 0.25 : 0.65;
         const faceYaw = Math.atan2(sim.player.x - shade.x, sim.player.z - shade.z);

@@ -1,7 +1,7 @@
 import type { InputState } from '../core/types';
 
 /**
- * Translates keyboard + mouse drag into Contract v1.1 InputState.
+ * Translates keyboard + mouse drag into Contract v1.2 InputState.
  * Controls: WASD move, Space jump, Shift dash, E/F interact, Q pulse, Esc/P pause.
  */
 export class InputController {

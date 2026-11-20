@@ -126,9 +126,22 @@ export class SoundEffects {
       case 'deposit':
         this.playTone(440, 0.16, 'triangle', 0.12, 660);
         break;
+      case 'refuel':
+        this.playTone(480, 0.18, 'sine', 0.13, 740);
+        break;
       case 'lantern_lit':
-        this.playTone(523.25, 0.32, 'triangle', 0.16, 783.99);
-        setTimeout(() => this.playTone(1046.5, 0.42, 'sine', 0.14), 110);
+        if (event.data.relight) {
+          this.playTone(587.33, 0.25, 'triangle', 0.15, 880);
+        } else {
+          this.playTone(523.25, 0.32, 'triangle', 0.16, 783.99);
+          setTimeout(() => this.playTone(1046.5, 0.42, 'sine', 0.14), 110);
+        }
+        break;
+      case 'lantern_out':
+        this.playTone(260, 0.42, 'sawtooth', 0.12, 110);
+        break;
+      case 'fuel_drain':
+        this.playTone(185, 0.22, 'sawtooth', 0.06, 130);
         break;
       case 'dash':
         this.playTone(420, 0.14, 'triangle', 0.13, 210);

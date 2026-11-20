@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đảo Đèn Lồng — Ba Hòn Đảo</title>
+    <title>Đảo Đèn Lồng — Giữ Ánh Sáng Tới Bình Minh</title>
   </head>
   <body>
     <div id="app">
       <canvas id="game-canvas"></canvas>
 
-      <!-- Full HUD (exact Ticket-02 layout) -->
+      <!-- Full HUD (Ticket-02 + Ticket-03 fuel, progressive capacity, colorblind alerts) -->
       <div id="hud" class="hud hidden" aria-label="Thông số trò chơi">
         <!-- Top-left: Flames + active Wind Charm -->
         <div class="hud-top-left">
@@ -22,20 +22,21 @@
           </div>
         </div>
 
-        <!-- Top-center: mm:ss Timer (turns #FF5A5F & blinks <= 30s) + Wind alert -->
+        <!-- Top-center: mm:ss Timer (turns danger color & blinks <= 30s) + Low-fuel / Wind alerts -->
         <div class="hud-top-center">
           <div class="hud-box timer-box">
             <span id="hud-night-label" class="hud-label">Đêm 1 — Đảo Bến</span>
-            <strong id="hud-time" class="timer-val">05:00</strong>
+            <strong id="hud-time" class="timer-val">04:00</strong>
           </div>
+          <div id="hud-low-fuel-badge" class="alert-badge hidden">⚠ Đèn sắp cạn dầu!</div>
           <div id="hud-wind-badge" class="wind-badge hidden">💨 Gió mạnh đang thổi!</div>
         </div>
 
-        <!-- Top-right: Lanterns k/n + Score -->
+        <!-- Top-right: Lanterns lit/total (min needed) + Score -->
         <div class="hud-top-right">
           <div class="hud-box">
             <span class="hud-label">Đèn Lồng</span>
-            <strong id="hud-lanterns">0 / 5</strong>
+            <strong id="hud-lanterns">0 / 5 (cần 3)</strong>
           </div>
           <div class="hud-box">
             <span class="hud-label">Điểm</span>
@@ -43,13 +44,13 @@
           </div>
         </div>
 
-        <!-- Off-screen arrow pointing toward nearest unlit lantern -->
+        <!-- Off-screen arrow pointing toward nearest weak or unlit lantern -->
         <div id="offscreen-arrow" class="offscreen-arrow hidden" aria-hidden="true">▲</div>
 
         <!-- Contextual interact prompt -->
         <div id="action-hint" class="action-hint hidden"></div>
 
-        <!-- Bottom-center: 10-slot firefly bar -->
+        <!-- Bottom-center: Dynamic firefly bar (10..20 capacity) -->
         <div class="hud-bottom-center">
           <div class="mote-bar-header">
             <span>Đom Đóm</span>
@@ -76,10 +77,10 @@
       <!-- Main Menu / Night Intro / Result / Dawn Screen -->
       <section id="overlay" class="overlay">
         <div class="card">
-          <p id="overlay-eyebrow" class="eyebrow">DAY 12 · BA HÒN ĐẢO</p>
+          <p id="overlay-eyebrow" class="eyebrow">DAY 12 · ĐÈN CẠN DẦU</p>
           <h1 id="overlay-title">Đảo Đèn Lồng</h1>
           <p id="overlay-desc">
-            Cùng Mây vượt qua 3 Đêm — Đảo Bến, Đảo Cau và Đảo Chuông — thu thập đom đóm vàng ấm và thắp sáng toàn bộ Đèn Lồng Lớn trước bình minh.
+            Cùng Mây vượt qua 3 Đêm — Đảo Bến, Đảo Cau và Đảo Chuông — thắp đèn, châm dầu kịp lúc và giữ đủ Đèn Lồng Lớn sáng tới bình minh!
           </p>
           <div id="overlay-stats" class="stats hidden"></div>
           <div id="night-picker" class="night-picker">
@@ -91,7 +92,7 @@
             <div><b>WASD</b> Di chuyển</div>
             <div><b>Space</b> Nhảy</div>
             <div><b>Shift</b> Lướt (14 m/s)</div>
-            <div><b>E / F</b> Nạp ánh sáng</div>
+            <div><b>E / F</b> Thắp / Châm dầu</div>
             <div><b>Q</b> Tỏa sáng (3 đom đóm)</div>
             <div><b>Esc / P</b> Tạm dừng</div>
           </div>
@@ -120,7 +121,7 @@
       <section id="settings-overlay" class="overlay hidden">
         <div class="card compact">
           <p class="eyebrow">CÀI ĐẶT</p>
-          <h1>Âm thanh & Điều khiển</h1>
+          <h1>Âm thanh, Điều khiển & Hiển thị</h1>
           <div class="setting-field">
             <label for="setting-volume">Âm lượng: <b id="setting-volume-val">70%</b></label>
             <input id="setting-volume" type="range" min="0" max="100" value="70" />
@@ -128,6 +129,15 @@
           <div class="setting-field">
             <label for="setting-sens">Độ nhạy chuột: <b id="setting-sens-val">0.35</b></label>
             <input id="setting-sens" type="range" min="10" max="100" value="35" />
+          </div>
+          <div class="setting-field checkbox-field">
+            <label class="checkbox-label" for="setting-colorblind">
+              <input id="setting-colorblind" type="checkbox" />
+              <span>Bảng màu dễ phân biệt</span>
+            </label>
+            <small class="setting-hint">
+              Đổi viền & mắt Bóng Mực sang xanh dương (#00B3FF), cảnh báo UI sang trắng (#FFFFFF) kèm biểu tượng ⚠.
+            </small>
           </div>
           <div class="btn-row">
             <button id="btn-close-settings" class="primary-btn">Lưu & Đóng</button>

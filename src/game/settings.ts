@@ -1,6 +1,7 @@
 export interface GameSettings {
   volume: number; // 0.0 .. 1.0
   mouseSensitivity: number; // 0.1 .. 1.0
+  colorblindMode: boolean; // "Bảng màu dễ phân biệt" (Ticket-03)
 }
 
 const STORAGE_KEY = 'dao-den-long-settings-v1';
@@ -8,6 +9,7 @@ const STORAGE_KEY = 'dao-den-long-settings-v1';
 export const DEFAULT_SETTINGS: GameSettings = {
   volume: 0.7,
   mouseSensitivity: 0.35,
+  colorblindMode: false,
 };
 
 function clamp(val: number, min: number, max: number): number {
@@ -29,6 +31,10 @@ export function loadSettings(): GameSettings {
         typeof parsed.mouseSensitivity === 'number' && Number.isFinite(parsed.mouseSensitivity)
           ? clamp(parsed.mouseSensitivity, 0.1, 1.0)
           : DEFAULT_SETTINGS.mouseSensitivity,
+      colorblindMode:
+        typeof parsed.colorblindMode === 'boolean'
+          ? parsed.colorblindMode
+          : DEFAULT_SETTINGS.colorblindMode,
     };
   } catch {
     return { ...DEFAULT_SETTINGS };
